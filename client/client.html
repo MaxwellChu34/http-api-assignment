@@ -5,7 +5,58 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
-
+    const handleResponse = async (response, type) => {
+      let content = document.querySelector('#content');
+      switch(response.status) {
+        case 200:
+          content.innerHTML = `<b>Success</b>`;
+          break;
+        case 400:
+          content.innerHTML = `<b>Bad Request</b>`;
+          break;
+        case 401:
+          content.innerHTML = `<b>Unauthorized</b>`;
+          break;
+        case 403:
+          content.innerHTML = `<b>Forbidden</b>`;
+          break;
+        case 500:
+          content.innerHTML = `<b>Internal Server Error</b>`;
+          break;
+        case 501:
+          content.innerHTML = `<b>Not Implemented</b>`;
+          break;
+        case 404:
+          content.innerHTML = `<b>Resource Not Found</b>`;
+          break;
+        default:
+          content.innerHTML = ``;
+          break;
+      }
+      let textJSON = await response.json();
+      let stringMessage = JSON.stringify(textJSON.message);
+      if(type === 'text/xml') {
+        if(typeof textJSON.id != "undefined") {
+          let stringId = JSON.stringify(textJSON.id);
+          console.log(`<response><message>${JSON.parse(stringMessage)}</message><id>${JSON.parse(stringId)}</id></response>`);
+        } else {
+          console.log(`<response><message>${JSON.parse(stringMessage)}</message></response>`);
+        }
+      } else {
+        console.log(JSON.stringify(textJSON));
+      }
+      content.innerHTML += `<p>Message: ${JSON.parse(stringMessage)}</p>`;
+    };
+    const requestUpdate = async () => {
+      let page = document.querySelector('#page').value;
+      let type = document.querySelector('#type').value;
+      let response = await fetch(page, {type, headers: {'Accept': 'application/json'},});
+      handleResponse(response, type);
+    };
+    const init = () => {
+      document.querySelector('#send').addEventListener('click', requestUpdate);
+    };
+    window.onload = init;
   </script>
 </head>
 <body>
